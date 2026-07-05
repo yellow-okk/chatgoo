@@ -1,0 +1,19 @@
+# Binaries
+bin/
+*.exe
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Environment
+.env
+configs/.env
+
+# Uploads
+uploads/
+
+# OS
+.DS_Store
+Thumbs.db

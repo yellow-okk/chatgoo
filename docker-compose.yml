@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: chat-postgres
+    environment:
+      POSTGRES_USER: chat
+      POSTGRES_PASSWORD: chat123
+      POSTGRES_DB: chatapp
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./migrations/001_init_schema.up.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chat -d chatapp"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: chat-redis
+    ports:
+      - "6379:6379"
+
+  app:
+    build: .
+    container_name: chat-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      - APP_ENV=development
+      - HTTP_PORT=8000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=chat
+      - DB_PASSWORD=chat123
+      - DB_NAME=chatapp
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=your-super-secret-key-change-in-prod
+      - JWT_EXPIRE_HOURS=72
+    ports:
+      - "8000:8000"
+
+volumes:
+  pgdata:

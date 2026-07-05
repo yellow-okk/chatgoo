@@ -1,0 +1,11 @@
+DROP TABLE IF EXISTS message_status;
+DROP TABLE IF EXISTS messages;
+DROP TABLE IF EXISTS files;
+DROP TABLE IF EXISTS session_participants;
+DROP TABLE IF EXISTS chat_sessions;
+DROP TABLE IF EXISTS group_members;
+DROP TABLE IF EXISTS group_info;
+DROP TABLE IF EXISTS friend_relations;
+DROP TABLE IF EXISTS friend_groups;
+DROP TABLE IF EXISTS users;
+DROP FUNCTION IF EXISTS update_updated_at();
