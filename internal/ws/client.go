@@ -1,3 +1,14 @@
+// client.go — 单个 WebSocket 连接的封装与读写循环。
+//
+// 声明内容：
+//   - 连接相关常量：writeWait、pongWait、pingPeriod、maxMessageSize，
+//     以及 RFC 6455 消息类型（pingMessage、closeMessage，GoFr 封装未暴露）
+//   - Client：封装单个 WebSocket 连接，持有 hub、conn、send 缓冲通道和 userID
+//
+// 职责：
+//   - ReadPump：从连接读取客户端消息并交给 MessageHandler 处理，设置读超时并通过 pong 重置
+//   - WritePump：从 send 通道取出消息写入连接，并定期发送 ping 维持心跳
+//   - 提供 NewClient / NewClientFromConn 构造方法与 Send 消息投递方法
 package ws
 
 import (

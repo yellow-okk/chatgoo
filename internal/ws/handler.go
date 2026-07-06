@@ -1,3 +1,14 @@
+// handler.go — WebSocket 入站消息的处理器。
+//
+// 声明内容：
+//   - MessageHandler 接口：定义处理客户端消息的契约（Handle）
+//   - defaultMessageHandler：默认实现，持有 Hub 引用
+//   - incomingMsg / subscribeData：入站 JSON 消息的解析结构
+//
+// 职责：
+//   - 解析客户端发来的 JSON 消息，按 type 字段分发到对应处理逻辑
+//   - 支持：ping 心跳响应（回 pong）、subscribe_session 订阅会话、
+//     unsubscribe_session 退订会话
 package ws
 
 import (
