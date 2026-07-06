@@ -3,7 +3,7 @@ package ws
 import (
 	"time"
 
-	"github.com/gorilla/websocket"
+	gofrWS "gofr.dev/pkg/gofr/websocket"
 )
 
 const (
@@ -11,18 +11,22 @@ const (
 	pongWait       = 60 * time.Second
 	pingPeriod     = 30 * time.Second
 	maxMessageSize = 4096
+
+	// RFC 6455 message types not exposed by GoFr's websocket wrapper.
+	pingMessage  = 9
+	closeMessage = 8
 )
 
 // Client wraps a single WebSocket connection.
 type Client struct {
 	hub    *Hub
-	conn   *websocket.Conn
+	conn   *gofrWS.Connection
 	send   chan []byte
 	userID int64
 }
 
 // NewClient creates a new Client.
-func NewClient(hub *Hub, conn *websocket.Conn, userID int64) *Client {
+func NewClient(hub *Hub, conn *gofrWS.Connection, userID int64) *Client {
 	return &Client{
 		hub:    hub,
 		conn:   conn,
@@ -31,8 +35,8 @@ func NewClient(hub *Hub, conn *websocket.Conn, userID int64) *Client {
 	}
 }
 
-// NewClientFromConn creates a new Client from a raw websocket connection.
-func NewClientFromConn(hub *Hub, conn *websocket.Conn, userID int64) *Client {
+// NewClientFromConn creates a new Client from a GoFr websocket connection.
+func NewClientFromConn(hub *Hub, conn *gofrWS.Connection, userID int64) *Client {
 	return NewClient(hub, conn, userID)
 }
 
@@ -77,16 +81,16 @@ func (c *Client) WritePump() {
 		case message, ok := <-c.send:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
-				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				c.conn.WriteMessage(closeMessage, []byte{})
 				return
 			}
-			if err := c.conn.WriteMessage(websocket.TextMessage, message); err != nil {
+			if err := c.conn.WriteMessage(gofrWS.TextMessage, message); err != nil {
 				return
 			}
 
 		case <-ticker.C:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
-			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+			if err := c.conn.WriteMessage(pingMessage, nil); err != nil {
 				return
 			}
 		}

@@ -27,11 +27,11 @@ func WSHandler(hub *ws.Hub, jwtSecret string) func(c *gofr.Context) (any, error)
 		userID := claims.UserID
 
 		conn := c.Container.GetConnectionFromContext(c.Context)
-		if conn == nil || conn.Conn == nil {
+		if conn == nil {
 			return nil, gofrWS.ErrorConnection
 		}
 
-		client := ws.NewClientFromConn(hub, conn.Conn, userID)
+		client := ws.NewClientFromConn(hub, conn, userID)
 		hub.RegisterClient(client)
 
 		var once sync.Once
